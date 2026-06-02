@@ -411,3 +411,6 @@ def webhook():
 @flask_app.route('/')
 def home():
     return "🤖 Telegram Bot is perfectly listening to Webhooks on Vercel!"
+# Vercel को Flask ऐप का रास्ता बताने के लिए
+app = flask_app
+                 
