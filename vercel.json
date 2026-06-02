@@ -3,8 +3,7 @@
   "builds": [
     {
       "src": "bot.py",
-      "use": "@vercel/python",
-      "config": { "wsgiOptions": { "app": "flask_app" } }
+      "use": "@vercel/python"
     }
   ],
   "routes": [

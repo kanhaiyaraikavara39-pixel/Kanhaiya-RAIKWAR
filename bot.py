@@ -13,7 +13,7 @@ ENCODED_KEY = "WkVYWFk="
 API_KEY = base64.b64decode(ENCODED_KEY).decode()
 
 BOT_TOKEN = "8437758795:AAFbeCsPUT4DkFMBsaa_ibPK4IeWwzS5yJc"
-ADMIN_IDS = [7890824548]          # ← Replace with your actual admin ID(s)
+ADMIN_IDS = [7890824548]          # ← आपका एडमिन ID
 
 # ============ DATA FILES ============
 # Vercel पर फाइलें सिर्फ /tmp फ़ोल्डर में ही राइट (Write) की जा सकती हैं
@@ -32,10 +32,10 @@ daily_stats = {}
 user_limits = {}
 daily_limit = 2
 
-# Flask App Initialize (Vercel के लिए)
-flask_app = Flask(__name__)
+# ✅ Flask App Initialize - इसका नाम 'app' रखा है ताकि Vercel को तुरंत मिल जाए
+app = Flask(__name__)
 
-# Telegram Application Setup (बिना run_polling के)
+# Telegram Application Setup (बिना run_polling के, सर्वरलेस के लिए परफेक्ट)
 tg_app = Application.builder().token(BOT_TOKEN).build()
 
 # ============ HELPER FUNCTIONS ============
@@ -97,7 +97,7 @@ def update_user_like(uid):
     daily_stats[t]['users'][uid_str] += 1
     save_all()
 
-# ✅ आपका वही पुराना API कॉल करने वाला फ़ंक्शन (URL के साथ)
+# आपकी वेबसाइट की API कॉल करने वाला फ़ंक्शन
 async def call_like_api(region, uid):
     try:
         url = f"{API_URL}like?uid={uid}&region={region}&key={API_KEY}"
@@ -223,7 +223,7 @@ async def like_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     proc_msg = await update.message.reply_text(f"🔄 *प्रक्रिया जारी है...*\nUID: `{uid}`\nरीजन: `{region}`", parse_mode='Markdown')
     
-    # ⚡ यहाँ आपकी वेबसाइट की API को कॉल किया जा रहा है
+    # API कॉल
     data = await call_like_api(region, uid)
     
     if data is None or "error" in data:
@@ -372,21 +372,21 @@ async def set_limit(update: Update, context: ContextTypes.DEFAULT_TYPE):
     save_all()
     await reply(update, f"✅ *दैनिक सीमा बदलकर प्रति यूजर `{daily_limit}` लाइक्स कर दी गई है*")
 
-def setup_handlers(app):
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("help", help_cmd))
-    app.add_handler(CommandHandler("info", info_cmd))
-    app.add_handler(CommandHandler("like", like_cmd))
-    app.add_handler(CommandHandler("allow", allow_group))
-    app.add_handler(CommandHandler("off", off_cmd))
-    app.add_handler(CommandHandler("on", on_cmd))
-    app.add_handler(CommandHandler("stats", stats_cmd))
-    app.add_handler(CommandHandler("setprivate", set_private))
-    app.add_handler(CommandHandler("setpublic", set_public))
-    app.add_handler(CommandHandler("setlimit", set_limit))
+def setup_handlers(app_instance):
+    app_instance.add_handler(CommandHandler("start", start))
+    app_instance.add_handler(CommandHandler("help", help_cmd))
+    app_instance.add_handler(CommandHandler("info", info_cmd))
+    app_instance.add_handler(CommandHandler("like", like_cmd))
+    app_instance.add_handler(CommandHandler("allow", allow_group))
+    app_instance.add_handler(CommandHandler("off", off_cmd))
+    app_instance.add_handler(CommandHandler("on", on_cmd))
+    app_instance.add_handler(CommandHandler("stats", stats_cmd))
+    app_instance.add_handler(CommandHandler("setprivate", set_private))
+    app_instance.add_handler(CommandHandler("setpublic", set_public))
+    app_instance.add_handler(CommandHandler("setlimit", set_limit))
 
 # ============ 🌐 VERCEL SERVERLESS WEBHOOK ROUTE ============
-@flask_app.route('/api/bot-webhook', methods=['POST'])
+@app.route('/api/bot-webhook', methods=['POST'])
 def webhook():
     load_data()
     if request.method == "POST":
@@ -408,9 +408,6 @@ def webhook():
             return jsonify({"error": str(e)}), 500
     return jsonify({"status": "method not allowed"}), 405
 
-@flask_app.route('/')
+@app.route('/')
 def home():
     return "🤖 Telegram Bot is perfectly listening to Webhooks on Vercel!"
-# Vercel को Flask ऐप का रास्ता बताने के लिए
-app = flask_app
-                 
