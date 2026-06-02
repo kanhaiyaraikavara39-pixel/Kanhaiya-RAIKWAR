@@ -1,9 +1,10 @@
 Flask[async]==3.0.3
-requests
-aiohttp==3.9.3
-googleapis-common-protos
-pycryptodome
-protobuf
-Werkzeug
+Werkzeug==3.0.3
+requests==2.32.3
+aiohttp==3.9.5
 python-telegram-bot==20.8
 httpx==0.27.0
+protobuf==5.27.0
+googleapis-common-protos==1.63.1
+pycryptodome==3.20.0
+
